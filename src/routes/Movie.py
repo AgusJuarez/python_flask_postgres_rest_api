@@ -1,4 +1,7 @@
 from flask import Blueprint, jsonify, request
+import uuid
+#Entities
+from models.entities.Movie import Movie
 #Models
 from models.MovieModel import MovieModel
 
@@ -26,8 +29,34 @@ def get_movie(id):
 @main.route('/add', methods=['POST'])
 def add_movie():
     try:
-        print(request.json)
-        return jsonify({})
+        title = request.json['title']
+        duration = int(request.json['duration'])
+        released = request.json['released']
+        id = uuid.uuid4()
+        movie = Movie(str(id), title, duration, released)
+
+        affected_rows=MovieModel.add_movie(movie)
+
+        if affected_rows == 1:
+            return jsonify(movie.id)
+        else:
+            return jsonify({'message':'Error on instert'}),500
+        
+    except Exception as ex:
+        return jsonify({'message':str(ex)}),500
+
+
+@main.route('/delete/<id>', methods=['DELETE'])
+def delete_movie(id):
+    try:
+        movie = Movie(id)
+        affected_rows = MovieModel.delete_movie(movie)
+
+        if affected_rows == 1:
+            return jsonify(movie.id)
+        else:
+            return jsonify({'message':'No movie deleted'}),404
+        
     except Exception as ex:
         return jsonify({'message':str(ex)}),500
 
