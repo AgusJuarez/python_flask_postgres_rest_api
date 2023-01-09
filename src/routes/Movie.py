@@ -61,3 +61,21 @@ def delete_movie(id):
         return jsonify({'message':str(ex)}),500
 
 
+@main.route('/update/<id>', methods=['PUT'])
+def update_movie(id):
+    try:
+        title = request.json['title']
+        duration = int(request.json['duration'])
+        released = request.json['released']
+        movie = Movie(id, title, duration, released)
+
+        affected_rows=MovieModel.update_movie(movie)
+
+        if affected_rows == 1:
+            return jsonify(movie.id)
+        else:
+            return jsonify({'message':'No movie updated'}),404
+        
+    except Exception as ex:
+        return jsonify({'message':str(ex)}),500
+
